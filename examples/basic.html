@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageFlipbook - Basic Example</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .example-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .example-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .example-code {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .example-code pre {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="example-container">
+        <div class="example-header">
+            <h1>ImageFlipbook - Basic Example</h1>
+            <p>A simple demonstration of the ImageFlipbook library</p>
+        </div>
+        
+        <!-- Basic flipbook container -->
+        <div id="my-flipbook"></div>
+        
+        <div class="example-code">
+            <h3>HTML:</h3>
+            <pre><code>&lt;div id="my-flipbook"&gt;&lt;/div&gt;</code></pre>
+        </div>
+        
+        <div class="example-code">
+            <h3>JavaScript:</h3>
+            <pre><code>const flipbook = new ImageFlipbook({
+    container: '#my-flipbook',
+    title: 'My Image Collection',
+    pages: [
+        'https://picsum.photos/800/600?random=1',
+        'https://picsum.photos/800/600?random=2',
+        'https://picsum.photos/800/600?random=3',
+        'https://picsum.photos/800/600?random=4',
+        'https://picsum.photos/800/600?random=5'
+    ],
+    chapters: [
+        { name: "Start", page: 1, icon: "📖" },
+        { name: "Middle", page: 3, icon: "📄" },
+        { name: "End", page: 5, icon: "🔚" }
+    ],
+    theme: 'default',
+    fullscreenEnabled: true,
+    socialSharing: true
+});</code></pre>
+        </div>
+    </div>
+
+    <!-- Load the library -->
+    <script src="../src/image-flipbook.js"></script>
+    
+    <script>
+        // Initialize the flipbook
+        const flipbook = new ImageFlipbook({
+            container: '#my-flipbook',
+            title: 'My Image Collection',
+            pages: [
+                'https://picsum.photos/800/600?random=1',
+                'https://picsum.photos/800/600?random=2',
+                'https://picsum.photos/800/600?random=3',
+                'https://picsum.photos/800/600?random=4',
+                'https://picsum.photos/800/600?random=5'
+            ],
+            chapters: [
+                { name: "Start", page: 1, icon: "📖" },
+                { name: "Middle", page: 3, icon: "📄" },
+                { name: "End", page: 5, icon: "🔚" }
+            ],
+            theme: 'default',
+            fullscreenEnabled: true,
+            socialSharing: true
+        });
+    </script>
+</body>
+</html>
