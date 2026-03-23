@@ -2,7 +2,7 @@
  * ImageFlipbook - Zero-dependency JavaScript library for smooth image sequence viewing
  * with fullscreen navigation
  * 
- * @version 1.0.0
+ * @version 1.1.0
  * @author Rich Curry (Curbob)
  * @license MIT
  */
@@ -23,12 +23,17 @@ class ImageFlipbook {
             fullscreenEnabled: options.fullscreenEnabled !== false,
             socialSharing: options.socialSharing || false,
             title: options.title || 'Image Flipbook',
+            allowDualPage: options.allowDualPage !== false, // Default: allow dual page
+            imageFit: options.imageFit || 'contain', // contain, cover, fill
             ...options
         };
         
         this.currentPage = this.config.currentPage;
         this.totalPages = this.config.totalPages || this.config.pages.length;
         this.container = null;
+        
+        // Page display mode - smart defaults based on screen size
+        this.pageMode = this.loadPageMode();
         
         this.init();
     }
@@ -40,6 +45,11 @@ class ImageFlipbook {
             
         if (!this.container) {
             throw new Error(`Container not found: ${this.config.container}`);
+        }
+        
+        // Ensure pageMode is set before rendering
+        if (!this.pageMode) {
+            this.pageMode = this.loadPageMode();
         }
         
         this.render();
@@ -70,6 +80,14 @@ class ImageFlipbook {
                         </span>
                         
                         <button class="nav-button" id="next-btn">Next →</button>
+                        
+                        ${this.config.allowDualPage ? `
+                        <div class="page-mode-toggle" title="Choose your reading view">
+                            <span class="toggle-label">View:</span>
+                            <button class="toggle-btn ${this.pageMode === 'single' ? 'active' : ''}" id="single-page-btn">1 Page</button>
+                            <button class="toggle-btn ${this.pageMode === 'dual' ? 'active' : ''}" id="dual-page-btn">2 Pages</button>
+                        </div>
+                        ` : ''}
                     </div>
                     
                     ${this.renderChapters()}
@@ -121,6 +139,20 @@ class ImageFlipbook {
         if (pageNum < 1 || pageNum > this.totalPages) return;
         
         const display = document.getElementById('page-display');
+        
+        if (this.pageMode === 'single' || pageNum === 1) {
+            // Single page mode or cover page
+            this.loadSinglePage(pageNum, display);
+        } else {
+            // Dual page mode - load current page and next page if available
+            this.loadDualPages(pageNum, display);
+        }
+        
+        this.currentPage = pageNum;
+        this.updateControls();
+    }
+    
+    loadSinglePage(pageNum, display) {
         const imagePath = this.getPagePath(pageNum);
         
         display.innerHTML = `
@@ -131,7 +163,9 @@ class ImageFlipbook {
         const img = new Image();
         img.onload = () => {
             display.innerHTML = `
-                <img class="page-image" src="${imagePath}" alt="Page ${pageNum}" title="Page ${pageNum}">
+                <div class="page-container single-page">
+                    <img class="page-image" src="${imagePath}" alt="Page ${pageNum}" title="Page ${pageNum}">
+                </div>
                 ${this.config.fullscreenEnabled ? '<button class="fullscreen-btn">⛶ Full</button>' : ''}
             `;
             
@@ -149,20 +183,98 @@ class ImageFlipbook {
         };
         
         img.src = imagePath;
-        this.currentPage = pageNum;
-        this.updateControls();
+    }
+    
+    loadDualPages(pageNum, display) {
+        const leftPagePath = this.getPagePath(pageNum);
+        const rightPagePath = pageNum < this.totalPages ? this.getPagePath(pageNum + 1) : null;
+        
+        display.innerHTML = `
+            <div class="loading">Loading pages ${pageNum}${rightPagePath ? ` & ${pageNum + 1}` : ''}...</div>
+            ${this.config.fullscreenEnabled ? '<button class="fullscreen-btn">⛶ Full</button>' : ''}
+        `;
+        
+        const leftImg = new Image();
+        const rightImg = rightPagePath ? new Image() : null;
+        let loadedCount = 0;
+        const totalImages = rightImg ? 2 : 1;
+        
+        const onImageLoad = () => {
+            loadedCount++;
+            if (loadedCount === totalImages) {
+                const rightPageHtml = rightImg ? 
+                    `<img class="page-image right-page" src="${rightPagePath}" alt="Page ${pageNum + 1}" title="Page ${pageNum + 1}">` : '';
+                
+                display.innerHTML = `
+                    <div class="page-container dual-page">
+                        <img class="page-image left-page" src="${leftPagePath}" alt="Page ${pageNum}" title="Page ${pageNum}">
+                        ${rightPageHtml}
+                    </div>
+                    ${this.config.fullscreenEnabled ? '<button class="fullscreen-btn">⛶ Full</button>' : ''}
+                `;
+                
+                if (this.config.fullscreenEnabled) {
+                    display.querySelectorAll('.page-image').forEach(img => {
+                        img.onclick = () => this.toggleFullscreen();
+                    });
+                    display.querySelector('.fullscreen-btn').onclick = () => this.toggleFullscreen();
+                }
+            }
+        };
+        
+        const onImageError = (pageNum) => {
+            display.innerHTML = `
+                <div class="loading error">Page ${pageNum} not found</div>
+                ${this.config.fullscreenEnabled ? '<button class="fullscreen-btn">⛶ Full</button>' : ''}
+            `;
+        };
+        
+        leftImg.onload = onImageLoad;
+        leftImg.onerror = () => onImageError(pageNum);
+        leftImg.src = leftPagePath;
+        
+        if (rightImg) {
+            rightImg.onload = onImageLoad;
+            rightImg.onerror = onImageLoad; // Still show left page if right fails
+            rightImg.src = rightPagePath;
+        }
     }
     
     nextPage() {
-        if (this.currentPage < this.totalPages) {
-            this.loadPageSmart(this.currentPage + 1);
+        const increment = this.getPageIncrement();
+        const nextPage = this.currentPage + increment;
+        
+        if (nextPage <= this.totalPages) {
+            this.loadPageSmart(nextPage);
         }
     }
     
     prevPage() {
-        if (this.currentPage > 1) {
-            this.loadPageSmart(this.currentPage - 1);
+        const decrement = this.getPageDecrement();
+        const prevPage = this.currentPage - decrement;
+        
+        if (prevPage >= 1) {
+            this.loadPageSmart(prevPage);
         }
+    }
+    
+    getPageIncrement() {
+        if (this.pageMode === 'single' || this.currentPage === 1) {
+            return 1;
+        }
+        // In dual mode, skip by 2 unless we're at the last page
+        return (this.currentPage + 1 >= this.totalPages) ? 1 : 2;
+    }
+    
+    getPageDecrement() {
+        if (this.pageMode === 'single') {
+            return 1;
+        }
+        // In dual mode, go back by 2, but handle cover page special case
+        if (this.currentPage <= 3) {
+            return this.currentPage - 1; // Go back to page 1 (cover)
+        }
+        return 2;
     }
     
     goToPage(pageNum) {
@@ -181,36 +293,120 @@ class ImageFlipbook {
     }
     
     changeFullscreenPage(pageNum) {
-        const imagePath = this.getPagePath(pageNum);
-        const fullscreenImg = document.fullscreenElement;
+        const fullscreenElement = document.fullscreenElement;
         
-        if (fullscreenImg && fullscreenImg.tagName === 'IMG') {
-            const newImg = new Image();
-            newImg.onload = () => {
-                fullscreenImg.src = imagePath;
-                fullscreenImg.alt = `Page ${pageNum}`;
-                fullscreenImg.title = `Page ${pageNum}`;
-            };
-            newImg.src = imagePath;
-            
+        if (fullscreenElement) {
+            // Stay in fullscreen and update content
             this.currentPage = pageNum;
-            document.getElementById('page-input').value = pageNum;
+            const pageInput = document.getElementById('page-input');
+            if (pageInput) {
+                pageInput.value = pageNum;
+            }
             this.updateControls();
+            
+            // Update fullscreen content based on current mode
+            if (this.pageMode === 'single' || pageNum === 1) {
+                this.updateFullscreenSinglePage(pageNum, fullscreenElement);
+            } else {
+                this.updateFullscreenDualPage(pageNum, fullscreenElement);
+            }
+        }
+    }
+    
+    updateFullscreenSinglePage(pageNum, fullscreenElement) {
+        const imagePath = this.getPagePath(pageNum);
+        
+        // Show loading state
+        fullscreenElement.innerHTML = '<div style="color: white; font-size: 2em; text-align: center;">Loading...</div>';
+        
+        const img = new Image();
+        img.onload = () => {
+            fullscreenElement.innerHTML = `
+                <img src="${imagePath}" alt="Page ${pageNum}" style="
+                    max-width: 100vw; 
+                    max-height: 100vh; 
+                    object-fit: ${this.config.imageFit};
+                    display: block;
+                    margin: auto;
+                    background: black;
+                ">
+            `;
+        };
+        
+        img.onerror = () => {
+            fullscreenElement.innerHTML = '<div style="color: red; font-size: 2em; text-align: center;">Failed to load page</div>';
+        };
+        
+        img.src = imagePath;
+    }
+    
+    updateFullscreenDualPage(pageNum, fullscreenElement) {
+        const leftPagePath = this.getPagePath(pageNum);
+        const rightPagePath = pageNum < this.totalPages ? this.getPagePath(pageNum + 1) : null;
+        
+        // Show loading state
+        fullscreenElement.innerHTML = '<div style="color: white; font-size: 2em; text-align: center;">Loading...</div>';
+        
+        const leftImg = new Image();
+        const rightImg = rightPagePath ? new Image() : null;
+        let loadedCount = 0;
+        const totalImages = rightImg ? 2 : 1;
+        
+        const onImageLoad = () => {
+            loadedCount++;
+            if (loadedCount === totalImages) {
+                const rightImageHtml = rightImg ? 
+                    `<img src="${rightPagePath}" alt="Page ${pageNum + 1}" style="
+                        max-width: 48vw; 
+                        max-height: 100vh; 
+                        object-fit: ${this.config.imageFit};
+                        margin: 0 1vw;
+                    ">` : '';
+                
+                fullscreenElement.innerHTML = `
+                    <div style="
+                        display: flex; 
+                        justify-content: center; 
+                        align-items: center; 
+                        height: 100vh; 
+                        background: black;
+                        gap: 2vw;
+                    ">
+                        <img src="${leftPagePath}" alt="Page ${pageNum}" style="
+                            max-width: 48vw; 
+                            max-height: 100vh; 
+                            object-fit: ${this.config.imageFit};
+                            margin: 0 1vw;
+                        ">
+                        ${rightImageHtml}
+                    </div>
+                `;
+            }
+        };
+        
+        leftImg.onload = onImageLoad;
+        leftImg.onerror = onImageLoad; // Continue even if left image fails
+        leftImg.src = leftPagePath;
+        
+        if (rightImg) {
+            rightImg.onload = onImageLoad;
+            rightImg.onerror = onImageLoad; // Continue even if right image fails  
+            rightImg.src = rightPagePath;
         }
     }
     
     toggleFullscreen() {
-        const img = document.querySelector('.page-image');
-        if (!img) return;
+        const pageContainer = document.querySelector('.page-container');
+        if (!pageContainer) return;
         
         if (!document.fullscreenElement) {
-            const fullscreenMethod = img.requestFullscreen || 
-                                   img.webkitRequestFullscreen || 
-                                   img.mozRequestFullScreen || 
-                                   img.msRequestFullscreen;
+            const fullscreenMethod = pageContainer.requestFullscreen || 
+                                   pageContainer.webkitRequestFullscreen || 
+                                   pageContainer.mozRequestFullScreen || 
+                                   pageContainer.msRequestFullscreen;
                                    
             if (fullscreenMethod) {
-                fullscreenMethod.call(img);
+                fullscreenMethod.call(pageContainer);
             }
         } else {
             const exitMethod = document.exitFullscreen || 
@@ -238,6 +434,10 @@ class ImageFlipbook {
         // Navigation buttons
         document.getElementById('prev-btn')?.addEventListener('click', () => this.prevPage());
         document.getElementById('next-btn')?.addEventListener('click', () => this.nextPage());
+        
+        // Page mode toggle buttons
+        document.getElementById('single-page-btn')?.addEventListener('click', () => this.setPageMode('single'));
+        document.getElementById('dual-page-btn')?.addEventListener('click', () => this.setPageMode('dual'));
         
         // Page input
         document.getElementById('page-input')?.addEventListener('change', (e) => {
@@ -308,6 +508,55 @@ class ImageFlipbook {
         window.open(`https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`, '_blank');
     }
     
+    loadPageMode() {
+        // If dual page is disabled by creator, always use single
+        if (!this.config.allowDualPage) {
+            return 'single';
+        }
+        
+        // Check localStorage first
+        const saved = localStorage.getItem('flipbook-page-mode');
+        if (saved === 'single' || saved === 'dual') {
+            return saved;
+        }
+        
+        // Smart default based on screen size
+        return window.innerWidth >= 768 ? 'dual' : 'single';
+    }
+    
+    savePageMode() {
+        localStorage.setItem('flipbook-page-mode', this.pageMode);
+    }
+    
+    setPageMode(mode) {
+        if (mode === this.pageMode) return; // No change needed
+        
+        // Respect creator's dual page setting
+        if (mode === 'dual' && !this.config.allowDualPage) {
+            return; // Don't allow dual page if disabled
+        }
+        
+        this.pageMode = mode;
+        this.savePageMode();
+        
+        // Update button states
+        const singleBtn = document.getElementById('single-page-btn');
+        const dualBtn = document.getElementById('dual-page-btn');
+        
+        if (singleBtn && dualBtn) {
+            singleBtn.classList.toggle('active', mode === 'single');
+            dualBtn.classList.toggle('active', mode === 'dual');
+        }
+        
+        // Reload current page with new mode
+        this.loadPage(this.currentPage);
+    }
+    
+    togglePageMode() {
+        // Keep this method for backwards compatibility
+        this.setPageMode(this.pageMode === 'single' ? 'dual' : 'single');
+    }
+    
     injectCSS() {
         if (document.getElementById('flipbook-styles')) return;
         
@@ -355,7 +604,7 @@ class ImageFlipbook {
                 position: relative;
                 background: #f4f1e8;
                 width: 80vw;
-                max-width: 800px;
+                max-width: 1200px;
                 height: 60vh;
                 max-height: 600px;
                 border: 3px solid #8B4513;
@@ -366,12 +615,41 @@ class ImageFlipbook {
                 justify-content: center;
             }
             
+            .page-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                gap: 10px;
+            }
+            
+            .page-container.single-page {
+                gap: 0;
+            }
+            
+            .page-container.dual-page {
+                gap: 10px;
+            }
+            
             .page-image {
-                max-width: 100%;
-                max-height: 100%;
                 object-fit: contain;
                 cursor: pointer;
                 transition: transform 0.2s ease;
+            }
+            
+            .single-page .page-image {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: ${this.config.imageFit};
+            }
+            
+            .dual-page .page-image {
+                max-width: 48%;
+                max-height: 100%;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                object-fit: ${this.config.imageFit};
             }
             
             .page-image:hover {
@@ -451,6 +729,66 @@ class ImageFlipbook {
                 box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
             }
             
+            .page-mode-toggle {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 14px;
+            }
+            
+            .toggle-label {
+                font-weight: bold;
+                color: #666;
+            }
+            
+            .toggle-btn {
+                background: #f0f0f0;
+                color: #666;
+                border: 2px solid #ddd;
+                padding: 6px 12px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 13px;
+                transition: all 0.3s ease;
+                min-width: 60px;
+            }
+            
+            .toggle-btn:hover {
+                background: #e0e0e0;
+                border-color: #ccc;
+            }
+            
+            .toggle-btn.active {
+                background: #2196F3;
+                color: white;
+                border-color: #1976D2;
+                font-weight: bold;
+            }
+            
+            .toggle-btn.active:hover {
+                background: #1976D2;
+            }
+            
+            .flipbook-wrapper[data-theme="medieval"] .toggle-label {
+                color: #d4af37;
+            }
+            
+            .flipbook-wrapper[data-theme="medieval"] .toggle-btn {
+                background: rgba(139, 69, 19, 0.3);
+                color: #d4af37;
+                border-color: #8B4513;
+            }
+            
+            .flipbook-wrapper[data-theme="medieval"] .toggle-btn.active {
+                background: linear-gradient(45deg, #4A148C, #6A1B9A);
+                border-color: #d4af37;
+                color: #d4af37;
+            }
+            
+            .flipbook-wrapper[data-theme="medieval"] .toggle-btn.active:hover {
+                background: linear-gradient(45deg, #6A1B9A, #8E24AA);
+            }
+            
             .page-info {
                 font-size: 16px;
                 font-weight: bold;
@@ -500,24 +838,93 @@ class ImageFlipbook {
                     height: 50vh;
                 }
                 
-                .nav-controls {
+                /* Force single page mode on mobile for dual pages */
+                .dual-page .page-image {
+                    max-width: 100%;
+                    border: none;
+                    border-radius: 0;
+                }
+                
+                .dual-page {
                     flex-direction: column;
-                    gap: 10px;
+                    gap: 5px;
                 }
                 
+                .nav-controls {
+                    flex-wrap: wrap;
+                    gap: 12px;
+                    justify-content: center;
+                    padding: 15px 10px;
+                }
+                
+                /* Touch-friendly navigation buttons (minimum 44px target) */
                 .nav-button {
-                    font-size: 14px;
-                    padding: 8px 16px;
+                    font-size: 16px;
+                    padding: 12px 18px;
+                    min-width: 44px;
+                    min-height: 44px;
+                    border-radius: 8px;
+                    touch-action: manipulation; /* Disable double-tap zoom */
                 }
                 
+                /* Page input field */
+                #page-input {
+                    font-size: 16px;
+                    padding: 12px 8px;
+                    min-height: 44px;
+                    width: 70px;
+                    text-align: center;
+                    border-radius: 6px;
+                    border: 2px solid #ddd;
+                }
+                
+                /* Page mode toggle - bottom row if enabled */
+                .page-mode-toggle {
+                    order: 3;
+                    flex-basis: 100%;
+                    margin-top: 15px;
+                    justify-content: center;
+                    gap: 15px;
+                }
+                
+                .toggle-label {
+                    font-size: 16px;
+                    font-weight: bold;
+                    align-self: center;
+                }
+                
+                .toggle-btn {
+                    font-size: 15px;
+                    padding: 12px 20px;
+                    min-width: 80px;
+                    min-height: 44px;
+                    border-radius: 8px;
+                    touch-action: manipulation;
+                }
+                
+                /* Chapter and social buttons */
                 .chapter-nav, .social-buttons {
                     justify-content: center;
+                    gap: 10px;
+                    margin-top: 15px;
                 }
                 
                 .chapter-btn, .social-btn {
-                    font-size: 12px;
-                    padding: 6px 12px;
-                    margin: 2px;
+                    font-size: 14px;
+                    padding: 12px 16px;
+                    min-height: 44px;
+                    margin: 4px;
+                    border-radius: 6px;
+                    touch-action: manipulation;
+                    white-space: nowrap;
+                }
+                
+                /* Fullscreen button */
+                .fullscreen-btn {
+                    min-width: 44px;
+                    min-height: 44px;
+                    padding: 12px;
+                    border-radius: 8px;
                 }
             }
         `;

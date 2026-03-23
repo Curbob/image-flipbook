@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Fit Options - Image Flipbook</title>
+    <style>
+        .demo-container {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .contain { background: #e8f5e8; }
+        .cover { background: #ffe8e8; }
+        .fill { background: #e8e8ff; }
+    </style>
+</head>
+<body>
+    <h2>Image Fit Options Comparison</h2>
+    
+    <div class="demo-container contain">
+        <h3>📐 object-fit: contain (Default)</h3>
+        <div id="flipbook-contain"></div>
+        <p><strong>Best for:</strong> Scanned documents, text pages, comics - preserves all content</p>
+    </div>
+    
+    <div class="demo-container cover">
+        <h3>🖼️ object-fit: cover</h3>
+        <div id="flipbook-cover"></div>
+        <p><strong>Best for:</strong> Artistic images, photos - fills container, may crop edges</p>
+    </div>
+    
+    <div class="demo-container fill">
+        <h3>🔀 object-fit: fill</h3>
+        <div id="flipbook-fill"></div>
+        <p><strong>Best for:</strong> Simple graphics - stretches to fit, may distort</p>
+    </div>
+
+    <script src="src/image-flipbook.js"></script>
+    <script>
+        // Same images, different fit options
+        const testImages = [
+            'https://picsum.photos/400/800?random=30', // Portrait
+            'https://picsum.photos/800/400?random=31', // Landscape
+            'https://picsum.photos/600/600?random=32', // Square
+        ];
+        
+        // Contain (default)
+        const flipbookContain = new ImageFlipbook({
+            container: '#flipbook-contain',
+            title: 'Contain (Default)',
+            pages: testImages,
+            imageFit: 'contain', // Shows full image, may have letterboxing
+            allowDualPage: true
+        });
+        
+        // Cover
+        const flipbookCover = new ImageFlipbook({
+            container: '#flipbook-cover',
+            title: 'Cover (Fill Container)',
+            pages: testImages,
+            imageFit: 'cover', // Fills container, may crop
+            allowDualPage: true
+        });
+        
+        // Fill
+        const flipbookFill = new ImageFlipbook({
+            container: '#flipbook-fill',
+            title: 'Fill (Stretch)',
+            pages: testImages,
+            imageFit: 'fill', // Stretches to fit, may distort
+            allowDualPage: true
+        });
+    </script>
+</body>
+</html>

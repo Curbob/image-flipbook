@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sacred Text - Image Flipbook v1.1.0</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(45deg, #0f0f23, #1a1a2e);
+            min-height: 100vh;
+            font-family: 'Georgia', serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="sacred-text-container"></div>
+
+    <script src="src/image-flipbook.js"></script>
+    <script>
+        console.log('📜 Loading Sacred Text with dual-page mode...');
+        
+        // Use the same Sacred Text configuration as your working version
+        const sacredText = new ImageFlipbook({
+            container: '#sacred-text-container',
+            title: '✨ THE SACRED TEXT ✨',
+            
+            // TODO: Replace with your actual Sacred Text image paths
+            // For now using tall book-like placeholders
+            pages: [
+                'https://picsum.photos/800/1200?random=100', // Cover page
+                'https://picsum.photos/800/1200?random=101', // Page 2
+                'https://picsum.photos/800/1200?random=102', // Page 3
+                'https://picsum.photos/800/1200?random=103', // Page 4
+                'https://picsum.photos/800/1200?random=104', // Page 5
+                'https://picsum.photos/800/1200?random=105', // Page 6
+                'https://picsum.photos/800/1200?random=106', // Page 7
+                'https://picsum.photos/800/1200?random=107', // Page 8
+                'https://picsum.photos/800/1200?random=108', // Page 9
+                'https://picsum.photos/800/1200?random=109', // Page 10
+            ],
+            
+            // Chapters based on Sacred Text structure
+            chapters: [
+                { name: "Preface", page: 1 },
+                { name: "Chapter I", page: 3 },
+                { name: "Chapter II", page: 5 },
+                { name: "Chapter III", page: 7 },
+                { name: "Appendix", page: 9 }
+            ],
+            
+            // Optimal settings for Sacred Text reading
+            theme: 'medieval',
+            allowDualPage: true,     // 🎯 NEW! Enable dual-page toggle
+            imageFit: 'contain',     // 🎯 NEW! Shows full pages without cropping
+            fullscreenEnabled: true,
+            chapterStyle: 'buttons',
+            chapterPosition: 'bottom',
+            socialSharing: false     // Keep it private
+        });
+        
+        console.log('✅ Sacred Text loaded with dual-page mode!');
+        console.log('🎮 Test the new "1 Page" / "2 Pages" toggle!');
+    </script>
+
+    <div style="position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.8); color: #d4af37; padding: 15px; border-radius: 8px; max-width: 300px; font-size: 14px; z-index: 1000;">
+        <h4 style="margin: 0 0 10px 0; color: #d4af37;">📜 Sacred Text v1.1.0</h4>
+        <p style="margin: 0 0 8px 0;"><strong>NEW Features:</strong></p>
+        <ul style="margin: 0; padding-left: 20px;">
+            <li>✨ Dual-page reading mode</li>
+            <li>📱 Mobile-optimized controls</li>
+            <li>🎯 Smart book navigation</li>
+            <li>💾 Preference persistence</li>
+        </ul>
+        <p style="margin: 10px 0 0 0; font-size: 12px; opacity: 0.8;">
+            Cover page shows alone, pages 2+ pair up in dual mode
+        </p>
+    </div>
+</body>
+</html>

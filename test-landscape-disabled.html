@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landscape Content (Dual Pages Disabled) - Image Flipbook</title>
+</head>
+<body>
+    <div id="flipbook-container"></div>
+
+    <script src="src/image-flipbook.js"></script>
+    <script>
+        // Landscape content example - dual page disabled
+        const flipbook = new ImageFlipbook({
+            container: '#flipbook-container',
+            title: 'Wide Charts & Diagrams',
+            pages: [
+                'https://picsum.photos/1200/600?random=20', // Landscape images
+                'https://picsum.photos/1200/600?random=21',
+                'https://picsum.photos/1200/600?random=22',
+                'https://picsum.photos/1200/600?random=23',
+                'https://picsum.photos/1200/600?random=24'
+            ],
+            theme: 'default',
+            allowDualPage: false, // 🔥 DISABLED - No toggle shown
+            imageFit: 'contain', // Keep full image visible
+            fullscreenEnabled: true
+        });
+    </script>
+
+    <div style="margin-top: 20px; padding: 20px; background: #fff3cd; border-radius: 10px;">
+        <h3>🚫 Dual Page Mode Disabled</h3>
+        <p><strong>Perfect for:</strong></p>
+        <ul>
+            <li>📊 <strong>Charts & Graphs:</strong> Wide content that needs full width</li>
+            <li>🗺️ <strong>Maps & Diagrams:</strong> Landscape-oriented images</li>
+            <li>📰 <strong>Comic Strips:</strong> Horizontal panel layouts</li>
+            <li>📋 <strong>Spreadsheets:</strong> Wide tables and data</li>
+        </ul>
+        <p><strong>Notice:</strong> No "View:" toggle appears - creator has disabled dual pages for this content type.</p>
+    </div>
+</body>
+</html>

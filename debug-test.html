@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test - Image Flipbook</title>
+</head>
+<body>
+    <div id="flipbook-container"></div>
+    
+    <div id="debug-info" style="margin-top: 20px; padding: 20px; background: #f0f0f0; border-radius: 5px;">
+        <h3>Debug Info:</h3>
+        <div id="console-output"></div>
+    </div>
+
+    <script src="src/image-flipbook.js"></script>
+    <script>
+        // Add console logging
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const debugOutput = document.getElementById('console-output');
+        
+        function addDebugMessage(type, message) {
+            const div = document.createElement('div');
+            div.style.color = type === 'error' ? 'red' : 'blue';
+            div.textContent = `[${type.toUpperCase()}] ${message}`;
+            debugOutput.appendChild(div);
+        }
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            addDebugMessage('log', args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            addDebugMessage('error', args.join(' '));
+        };
+        
+        // Catch any errors
+        window.addEventListener('error', function(e) {
+            addDebugMessage('error', `JavaScript Error: ${e.message} at ${e.filename}:${e.lineno}`);
+        });
+        
+        try {
+            console.log('Creating ImageFlipbook...');
+            
+            const flipbook = new ImageFlipbook({
+                container: '#flipbook-container',
+                title: 'Debug Test Book',
+                pages: [
+                    'https://picsum.photos/400/600?random=10',
+                    'https://picsum.photos/400/600?random=11',
+                    'https://picsum.photos/400/600?random=12',
+                    'https://picsum.photos/400/600?random=13'
+                ],
+                theme: 'default',
+                fullscreenEnabled: true
+            });
+            
+            console.log('ImageFlipbook created successfully!');
+            console.log('Page mode:', flipbook.pageMode);
+            console.log('Current page:', flipbook.currentPage);
+            console.log('Total pages:', flipbook.totalPages);
+            
+        } catch (error) {
+            console.error('Failed to create ImageFlipbook:', error);
+            addDebugMessage('error', `Creation failed: ${error.message}`);
+        }
+    </script>
+</body>
+</html>

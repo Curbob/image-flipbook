@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mobile Controls Test - Image Flipbook</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        .test-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .test-info h3 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+        .test-info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h3>📱 Mobile Controls Test</h3>
+        <p><strong>Testing touch-friendly navigation:</strong></p>
+        <ul>
+            <li>✅ <strong>44px minimum touch targets</strong> (iOS/Android guidelines)</li>
+            <li>✅ <strong>Proper spacing</strong> between buttons</li>
+            <li>✅ <strong>Larger text</strong> for readability</li>
+            <li>✅ <strong>Disabled double-tap zoom</strong> on controls</li>
+            <li>✅ <strong>Organized layout</strong> - page info, nav buttons, toggle</li>
+        </ul>
+        <p><strong>Try:</strong> Tap all buttons, page input, navigation, fullscreen mode!</p>
+    </div>
+
+    <div id="flipbook-container"></div>
+
+    <script src="src/image-flipbook.js"></script>
+    <script>
+        console.log('🧪 Mobile controls test starting...');
+        
+        const flipbook = new ImageFlipbook({
+            container: '#flipbook-container',
+            title: 'Mobile Navigation Test',
+            pages: [
+                'https://picsum.photos/600/900?random=40',
+                'https://picsum.photos/600/900?random=41', 
+                'https://picsum.photos/600/900?random=42',
+                'https://picsum.photos/600/900?random=43',
+                'https://picsum.photos/600/900?random=44',
+                'https://picsum.photos/600/900?random=45',
+                'https://picsum.photos/600/900?random=46',
+                'https://picsum.photos/600/900?random=47'
+            ],
+            theme: 'default',
+            allowDualPage: true, // Show the toggle for testing
+            imageFit: 'contain',
+            fullscreenEnabled: true,
+            chapters: [
+                { title: 'Chapter 1', page: 1 },
+                { title: 'Chapter 2', page: 3 },
+                { title: 'Chapter 3', page: 6 }
+            ],
+            chapterStyle: 'buttons',
+            chapterPosition: 'bottom'
+        });
+
+        console.log('✅ Mobile flipbook created successfully!');
+        
+        // Log when buttons are pressed (for mobile testing)
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.classList.contains('nav-button') || 
+                e.target.classList.contains('toggle-btn') || 
+                e.target.classList.contains('chapter-btn')) {
+                console.log('👆 Touch detected on:', e.target.textContent || e.target.title);
+            }
+        });
+    </script>
+
+    <div class="test-info" style="margin-top: 30px;">
+        <h3>🎯 Test Checklist</h3>
+        <ul>
+            <li><strong>Navigation arrows:</strong> Easy to tap, proper size?</li>
+            <li><strong>Start/End buttons:</strong> Clear and accessible?</li>
+            <li><strong>Page input field:</strong> Large enough for typing?</li>
+            <li><strong>View toggle:</strong> "1 Page" / "2 Pages" buttons responsive?</li>
+            <li><strong>Chapter buttons:</strong> All touchable without misclicks?</li>
+            <li><strong>Fullscreen button:</strong> Works on mobile browsers?</li>
+        </ul>
+        <p><strong>Expected:</strong> All buttons should be easily tappable without zooming, proper spacing prevents mis-taps.</p>
+    </div>
+</body>
+</html>
