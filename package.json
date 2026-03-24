@@ -1,0 +1,46 @@
+{
+  "name": "image-flipbook",
+  "version": "1.1.1",
+  "description": "Zero-dependency JavaScript library for smooth image sequence viewing with dual-page reading mode and fullscreen navigation",
+  "main": "dist/image-flipbook.min.js",
+  "module": "src/image-flipbook.js",
+  "files": [
+    "dist/",
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/build.js",
+    "dev": "node scripts/serve.js",
+    "test": "node scripts/test.js"
+  },
+  "keywords": [
+    "flipbook",
+    "image-viewer",
+    "gallery",
+    "fullscreen",
+    "page-turner",
+    "digital-book",
+    "comic-reader",
+    "manuscript-viewer"
+  ],
+  "author": "Rich Curry (Curbob)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/curbob/image-flipbook.git"
+  },
+  "bugs": {
+    "url": "https://github.com/curbob/image-flipbook/issues"
+  },
+  "homepage": "https://github.com/curbob/image-flipbook#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

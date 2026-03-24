@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sacred Texts v1.1.0 - Dual-Page Reading Mode</title>
+</head>
+<body>
+    <div id="sacred-text-container"></div>
+
+    <script src="src/image-flipbook.js"></script>
+    <script>
+        console.log('📜 Loading Sacred Texts with v1.1.0 dual-page mode...');
+        
+        // Generate the 68 page paths matching your structure  
+        // Note: We'll need to copy or symlink your pages directory here
+        const pages = [];
+        for (let i = 1; i <= 68; i++) {
+            const pageNum = i.toString().padStart(2, '0');
+            pages.push(`pages/page-${pageNum}.png`);
+        }
+        
+        const sacredText = new ImageFlipbook({
+            container: '#sacred-text-container',
+            title: '✨ THE SACRED TEXTS OF CODE ✨',
+            
+            // Your actual Sacred Text pages!
+            pages: pages,
+            
+            // Your chapter structure - using 'name' property
+            chapters: [
+                { name: "📜 Start", page: 1 },
+                { name: "👑 Saints", page: 10 }, 
+                { name: "⚡ Protocols", page: 26 },
+                { name: "🔚 End", page: 68 }
+            ],
+            
+            // Optimal settings for Sacred Text reading
+            theme: 'medieval',
+            allowDualPage: true,     // 🎯 NEW! Enable reader choice
+            imageFit: 'contain',     // Shows full pages without cropping
+            fullscreenEnabled: true,
+            chapterStyle: 'buttons',
+            chapterPosition: 'bottom'
+        });
+        
+        console.log('✅ Sacred Texts loaded! 68 pages with dual-page mode available.');
+        console.log('🎮 Try the new "1 Page" / "2 Pages" toggle!');
+        console.log('📱 Test mobile controls by resizing window!');
+    </script>
+
+    <div style="position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); color: #d4af37; padding: 15px; border-radius: 8px; max-width: 350px; font-size: 13px; z-index: 1000;">
+        <h4 style="margin: 0 0 10px 0; color: #d4af37;">📚 Sacred Texts v1.1.0</h4>
+        
+        <p style="margin: 0 0 8px 0;"><strong>✨ NEW Features:</strong></p>
+        <ul style="margin: 0 0 10px 0; padding-left: 20px; font-size: 12px;">
+            <li><strong>Dual-page reading:</strong> Toggle "1 Page" / "2 Pages"</li>
+            <li><strong>Smart cover logic:</strong> Page 1 alone, then pairs</li>
+            <li><strong>Mobile optimized:</strong> Touch-friendly controls</li>
+            <li><strong>Fullscreen fixed:</strong> Arrow keys work in fullscreen</li>
+            <li><strong>Preference memory:</strong> Remembers your choice</li>
+        </ul>
+        
+        <p style="margin: 0 0 8px 0; font-size: 12px;"><strong>📖 Reading Tips:</strong></p>
+        <ul style="margin: 0; padding-left: 20px; font-size: 11px;">
+            <li>Cover (page 1) always shows alone</li>
+            <li>Desktop default: 2-page view</li>
+            <li>Mobile default: 1-page view</li>
+            <li>Click toggle to change anytime!</li>
+        </ul>
+    </div>
+    
+    <div style="position: fixed; top: 20px; left: 20px; background: rgba(26, 26, 46, 0.9); color: #d4af37; padding: 10px; border-radius: 8px; font-size: 12px; z-index: 1000;">
+        <strong>📊 Test Status:</strong><br>
+        Pages: 68 ✅<br>
+        Theme: Medieval ✅<br>
+        Dual-page: Enabled ✅
+    </div>
+</body>
+</html>

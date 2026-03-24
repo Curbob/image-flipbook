@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageFlipbook - Medieval Theme</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(45deg, #0f0f23, #1a1a2e);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="medieval-manuscript"></div>
+
+    <script src="../src/image-flipbook.js"></script>
+    
+    <script>
+        // Medieval manuscript example
+        const manuscript = new ImageFlipbook({
+            container: '#medieval-manuscript',
+            title: '✨ THE ILLUMINATED CODEX ✨',
+            pages: [
+                'https://picsum.photos/800/1200?random=10',
+                'https://picsum.photos/800/1200?random=11', 
+                'https://picsum.photos/800/1200?random=12',
+                'https://picsum.photos/800/1200?random=13',
+                'https://picsum.photos/800/1200?random=14',
+                'https://picsum.photos/800/1200?random=15',
+                'https://picsum.photos/800/1200?random=16',
+                'https://picsum.photos/800/1200?random=17'
+            ],
+            chapters: [
+                { name: "Prologue", page: 1, icon: "📜" },
+                { name: "Chapter I", page: 3, icon: "🏰" },
+                { name: "Chapter II", page: 5, icon: "⚔️" },
+                { name: "Epilogue", page: 8, icon: "🔚" }
+            ],
+            theme: 'medieval',
+            allowDualPage: true,     // v1.1.0 - Enable dual-page toggle
+            imageFit: 'contain',     // v1.1.0 - Show full pages
+            fullscreenEnabled: true,
+            socialSharing: true
+        });
+    </script>
+</body>
+</html>

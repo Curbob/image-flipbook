@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual Page Mode Test - Image Flipbook</title>
+</head>
+<body>
+    <div id="flipbook-container"></div>
+
+    <script src="src/image-flipbook.js"></script>
+    <script>
+        // Create a simple test flipbook with sample pages
+        const flipbook = new ImageFlipbook({
+            container: '#flipbook-container',
+            title: 'Dual Page Mode Test Book',
+            pages: [
+                'https://picsum.photos/600/900?random=1',
+                'https://picsum.photos/600/900?random=2', 
+                'https://picsum.photos/600/900?random=3',
+                'https://picsum.photos/600/900?random=4',
+                'https://picsum.photos/600/900?random=5',
+                'https://picsum.photos/600/900?random=6',
+                'https://picsum.photos/600/900?random=7',
+                'https://picsum.photos/600/900?random=8'
+            ],
+            theme: 'default',
+            fullscreenEnabled: true
+        });
+    </script>
+
+    <div style="margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 10px;">
+        <h3>Test Instructions:</h3>
+        <ol>
+            <li><strong>Cover Page:</strong> Page 1 should always display alone, regardless of mode</li>
+            <li><strong>Toggle Button:</strong> Click "1 Page" / "2 Pages" to switch modes</li>
+            <li><strong>Dual Mode Navigation:</strong> From page 1, next should go to pages 2-3 together</li>
+            <li><strong>Smart Defaults:</strong> Desktop should default to "2 Pages", mobile to "1 Page"</li>
+            <li><strong>Persistence:</strong> Refresh page - your mode choice should be remembered</li>
+            <li><strong>Last Page:</strong> If page 8 is alone in dual mode, that's fine</li>
+        </ol>
+        
+        <h4>Expected Dual Page Pairs:</h4>
+        <ul>
+            <li>Page 1: Cover (alone)</li>
+            <li>Pages 2-3: First spread</li>
+            <li>Pages 4-5: Second spread</li>
+            <li>Pages 6-7: Third spread</li>
+            <li>Page 8: Final page (alone if odd total)</li>
+        </ul>
+    </div>
+</body>
+</html>
