@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageFlipbook - Interactive Page Flipbook Library</title>
+    <meta name="description" content="A modern JavaScript library for creating immersive page-turning experiences. Perfect for digital books, manuscripts, catalogs, and more.">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            color: #718096;
+            margin-bottom: 2rem;
+        }
+        
+        .hero {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            margin: 2rem 0;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .feature {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .demos {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            margin: 2rem 0;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .demo-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .demo-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #f7fafc, #edf2f7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+        
+        .demo-content {
+            padding: 1.5rem;
+        }
+        
+        .demo-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+        
+        .demo-desc {
+            color: #718096;
+            margin-bottom: 1rem;
+        }
+        
+        .demo-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        
+        .demo-link:hover {
+            transform: scale(1.05);
+        }
+        
+        .cta-section {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            margin: 2rem 0;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            margin: 0.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        .submit-demo {
+            background: #f7fafc;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            text-align: center;
+            border: 2px dashed #cbd5e0;
+        }
+        
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .hero, .demos, .cta-section {
+                padding: 2rem 1rem;
+                margin: 1rem 0;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">📖 ImageFlipbook</div>
+            <div class="tagline">Interactive Page-Turning Experiences for the Modern Web</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1 style="font-size: 2.5rem; color: #2d3748; margin-bottom: 1rem;">Turn Static Images Into Living Books</h1>
+            <p style="font-size: 1.2rem; color: #718096; max-width: 800px; margin: 0 auto;">
+                ImageFlipbook is a powerful JavaScript library that transforms sequences of images into immersive, 
+                page-turning experiences. Perfect for digital manuscripts, catalogs, comic books, and more.
+            </p>
+        </section>
+
+        <section class="features">
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <h3>Mobile Ready</h3>
+                <p>Responsive design with touch gestures, swipe navigation, and mobile fullscreen support.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <h3>Dual-Page Mode</h3>
+                <p>Smart dual-page display that adapts to screen size with single-page fallback on mobile.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Easy Integration</h3>
+                <p>Simple API, zero dependencies, works with any image hosting. Just add script tag and go!</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🔧</div>
+                <h3>Customizable</h3>
+                <p>Flexible theming, custom controls, fullscreen mode, and keyboard navigation support.</p>
+            </div>
+        </section>
+
+        <section class="demos">
+            <h2 style="text-align: center; color: #2d3748; margin-bottom: 1rem; font-size: 2rem;">Live Demos</h2>
+            <p style="text-align: center; color: #718096; margin-bottom: 2rem;">
+                See ImageFlipbook in action with these real-world implementations
+            </p>
+            
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <div class="demo-image">📜</div>
+                    <div class="demo-content">
+                        <div class="demo-title">Sacred Texts Manuscript</div>
+                        <div class="demo-desc">
+                            Ancient sacred geometry texts with medieval styling, dual-page reading mode, 
+                            and immersive fullscreen experience.
+                        </div>
+                        <a href="https://curbob.github.io/sacred-texts" class="demo-link" target="_blank">
+                            View Demo →
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="demo-card">
+                    <div class="demo-image">📋</div>
+                    <div class="demo-content">
+                        <div class="demo-title">Submit Your Demo</div>
+                        <div class="demo-desc">
+                            Built something amazing with ImageFlipbook? We'd love to feature your project here!
+                        </div>
+                        <a href="mailto:curbob@gmail.com?subject=ImageFlipbook Demo Submission&body=Hi! I'd like to submit my ImageFlipbook implementation for the demo showcase.%0A%0AProject Name:%0ADemo URL:%0ADescription:%0A%0AThanks!" class="demo-link">
+                            Submit Demo →
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="submit-demo">
+                <h3 style="color: #4a5568; margin-bottom: 1rem;">📧 Got an ImageFlipbook Project?</h3>
+                <p style="color: #718096;">
+                    Email us at <strong>curbob@gmail.com</strong> with your demo URL and description. 
+                    We love showcasing creative implementations!
+                </p>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <h2 style="color: #2d3748; margin-bottom: 1rem; font-size: 2rem;">Ready to Get Started?</h2>
+            <p style="color: #718096; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Install via npm or use the CDN. Check out the documentation and start building your own page-turning experiences today.
+            </p>
+            
+            <a href="https://www.npmjs.com/package/image-flipbook" class="btn btn-primary" target="_blank">
+                📦 View on npm
+            </a>
+            <a href="https://github.com/Curbob/image-flipbook" class="btn btn-secondary" target="_blank">
+                🔧 GitHub Repo
+            </a>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 ImageFlipbook. Built with ❤️ for the web.</p>
+            <p style="margin-top: 0.5rem; opacity: 0.7;">
+                <a href="https://www.npmjs.com/package/image-flipbook" style="color: #a0aec0;">npm</a> • 
+                <a href="https://github.com/Curbob/image-flipbook" style="color: #a0aec0;">GitHub</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
