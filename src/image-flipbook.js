@@ -2,7 +2,7 @@
  * ImageFlipbook - Zero-dependency JavaScript library for smooth image sequence viewing
  * with fullscreen navigation
  * 
- * @version 1.1.0
+ * @version 1.1.1
  * @author Rich Curry (Curbob)
  * @license MIT
  */
@@ -25,6 +25,13 @@ class ImageFlipbook {
             title: options.title || 'Image Flipbook',
             allowDualPage: options.allowDualPage !== false, // Default: allow dual page
             imageFit: options.imageFit || 'contain', // contain, cover, fill
+            
+            // Security options
+            enforceHTTPS: options.enforceHTTPS !== false, // Default: convert HTTP to HTTPS
+            preventRightClick: options.preventRightClick || false, // Default: allow right-click
+            validateImageSources: options.validateImageSources || false, // Default: no validation
+            allowedDomains: options.allowedDomains || [], // Empty = allow all
+            
             ...options
         };
         
@@ -54,6 +61,7 @@ class ImageFlipbook {
         
         this.render();
         this.bindEvents();
+        this.setupSecurity();
         this.loadPage(this.currentPage);
     }
     
@@ -123,16 +131,103 @@ class ImageFlipbook {
     }
     
     getPagePath(pageNum) {
+        let path;
+        
         if (this.config.pages.length > 0) {
-            return this.config.pages[pageNum - 1];
-        }
-        
-        if (this.config.pagePattern) {
+            path = this.config.pages[pageNum - 1];
+        } else if (this.config.pagePattern) {
             const pageStr = pageNum.toString().padStart(2, '0');
-            return this.config.pagePattern.replace('{##}', pageStr);
+            path = this.config.pagePattern.replace('{##}', pageStr);
+        } else {
+            throw new Error('No pages or pagePattern specified');
         }
         
-        throw new Error('No pages or pagePattern specified');
+        return this.validateAndSecurePath(path);
+    }
+    
+    validateAndSecurePath(path) {
+        // Security: Convert HTTP to HTTPS if enforcing HTTPS
+        if (this.config.enforceHTTPS && location.protocol === 'https:' && path.startsWith('http://')) {
+            console.warn('ImageFlipbook: Converting HTTP image to HTTPS for security');
+            path = path.replace('http://', 'https://');
+        }
+        
+        // Security: Validate against allowed domains if specified
+        if (this.config.validateImageSources && this.config.allowedDomains.length > 0) {
+            const isAllowed = this.config.allowedDomains.some(domain => {
+                return path.startsWith(domain) || path.startsWith('/') || !path.includes('://');
+            });
+            
+            if (!isAllowed) {
+                console.error('ImageFlipbook: Image source not in allowed domains:', path);
+                throw new Error(`Image source not allowed: ${path}`);
+            }
+        }
+        
+        return path;
+    }
+    
+    setupSecurity() {
+        // Add CSP meta tag if not present
+        this.addCSPMeta();
+        
+        // Setup right-click prevention if enabled
+        if (this.config.preventRightClick) {
+            this.setupRightClickProtection();
+        }
+        
+        // Add referrer policy if not present
+        this.addReferrerPolicy();
+    }
+    
+    addCSPMeta() {
+        if (document.querySelector('meta[http-equiv="Content-Security-Policy"]')) {
+            return; // CSP already set
+        }
+        
+        const csp = document.createElement('meta');
+        csp.setAttribute('http-equiv', 'Content-Security-Policy');
+        csp.setAttribute('content', 
+            "default-src 'self'; " +
+            "img-src 'self' data: https:; " +
+            "script-src 'self' 'unsafe-inline'; " +
+            "style-src 'self' 'unsafe-inline'; " +
+            "object-src 'none';"
+        );
+        
+        document.head.appendChild(csp);
+        console.log('ImageFlipbook: Added Content Security Policy');
+    }
+    
+    addReferrerPolicy() {
+        if (document.querySelector('meta[name="referrer"]')) {
+            return; // Referrer policy already set
+        }
+        
+        const referrer = document.createElement('meta');
+        referrer.setAttribute('name', 'referrer');
+        referrer.setAttribute('content', 'strict-origin-when-cross-origin');
+        
+        document.head.appendChild(referrer);
+        console.log('ImageFlipbook: Added referrer policy');
+    }
+    
+    setupRightClickProtection() {
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.classList.contains('page-image')) {
+                e.preventDefault();
+                console.log('ImageFlipbook: Right-click disabled on images');
+                return false;
+            }
+        });
+        
+        // Also prevent drag and drop
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('page-image')) {
+                e.preventDefault();
+                return false;
+            }
+        });
     }
     
     loadPage(pageNum) {
