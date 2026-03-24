@@ -11,14 +11,24 @@ Perfect for digital art books, comic readers, technical manuals, portfolios, and
 ## ✨ Features
 
 - 🚀 **Zero dependencies** - Pure vanilla JavaScript
-- 📱 **Fully responsive** - Works on desktop, tablet, and mobile
+- 📱 **Enhanced mobile support** - Touch gestures, swipe navigation, mobile fullscreen fallback
 - 🖼️ **Smooth fullscreen navigation** - Seamless page transitions without flickering
+- 👆 **Touch-friendly controls** - 44px minimum touch targets, intuitive mobile navigation
 - ⌨️ **Keyboard support** - Arrow keys, spacebar, F for fullscreen
 - 🎨 **Customizable themes** - Built-in themes + full CSS customization
 - 📖 **Chapter navigation** - Optional chapter markers for easy jumping
 - 🌐 **Social sharing** - Built-in Twitter and Reddit sharing
 - 📄 **Multiple image formats** - JPG, PNG, WebP, SVG support
 - 🔧 **Flexible configuration** - File arrays or naming patterns
+
+### 🔥 New in v1.2.0: Mobile Enhancements
+
+- **📱 Mobile Fullscreen Fallback** - Custom overlay when native fullscreen isn't available
+- **🎮 Touch Navigation** - Circular ← → buttons in mobile fullscreen mode
+- **👉 Swipe Gestures** - Swipe left/right to change pages
+- **🎯 Tap to Advance** - Tap center area to go to next page
+- **🍎 iOS Safari Support** - Enhanced compatibility with mobile browsers
+- **♿ Accessibility** - 44px minimum touch targets for mobile accessibility
 
 ## 🚀 Quick Start
 

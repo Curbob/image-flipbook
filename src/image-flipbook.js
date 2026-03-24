@@ -1,8 +1,8 @@
 /**
  * ImageFlipbook - Zero-dependency JavaScript library for smooth image sequence viewing
- * with fullscreen navigation
+ * with fullscreen navigation and mobile enhancements
  * 
- * @version 1.1.1
+ * @version 1.2.0
  * @author Rich Curry (Curbob)
  * @license MIT
  */
@@ -243,6 +243,18 @@ class ImageFlipbook {
             this.loadDualPages(pageNum, display);
         }
         
+        // Update mobile fullscreen if active
+        if (this._mobileFullscreen) {
+            const overlay = document.getElementById('mobile-fullscreen-overlay');
+            if (overlay) {
+                if (this.pageMode === 'single' || pageNum === 1) {
+                    this.updateFullscreenPage(pageNum, overlay);
+                } else {
+                    this.updateFullscreenDualPage(pageNum, overlay);
+                }
+            }
+        }
+        
         this.currentPage = pageNum;
         this.updateControls();
     }
@@ -331,6 +343,94 @@ class ImageFlipbook {
         if (rightImg) {
             rightImg.onload = onImageLoad;
             rightImg.onerror = onImageLoad; // Still show left page if right fails
+            rightImg.src = rightPagePath;
+        }
+    }
+    
+    updateFullscreenPage(pageNum, fullscreenElement) {
+        const imagePath = this.getPagePath(pageNum);
+        const targetElement = fullscreenElement.id === 'mobile-fullscreen-overlay' 
+            ? fullscreenElement.querySelector('.page-container') || fullscreenElement
+            : fullscreenElement;
+        
+        targetElement.innerHTML = '<div style="color: white; font-size: 2em; text-align: center;">Loading...</div>';
+        
+        const img = new Image();
+        img.onload = () => {
+            targetElement.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+                    <img class="page-image" src="${imagePath}" alt="Page ${pageNum}" style="
+                        max-width: 100vw;
+                        max-height: 100vh;
+                        object-fit: ${this.config.imageFit};
+                    ">
+                </div>
+            `;
+        };
+        
+        img.onerror = () => {
+            targetElement.innerHTML = '<div style="color: white; font-size: 2em; text-align: center;">Page not found</div>';
+        };
+        
+        img.src = imagePath;
+    }
+    
+    updateFullscreenDualPage(pageNum, fullscreenElement) {
+        const leftPagePath = this.getPagePath(pageNum);
+        const rightPagePath = pageNum < this.totalPages ? this.getPagePath(pageNum + 1) : null;
+        const isMobileFullscreen = fullscreenElement.id === 'mobile-fullscreen-overlay';
+        
+        const targetElement = isMobileFullscreen 
+            ? fullscreenElement.querySelector('.page-container') || fullscreenElement
+            : fullscreenElement;
+        
+        targetElement.innerHTML = '<div style="color: white; font-size: 2em; text-align: center;">Loading...</div>';
+        
+        const leftImg = new Image();
+        const rightImg = rightPagePath ? new Image() : null;
+        let loadedCount = 0;
+        const totalImages = rightImg ? 2 : 1;
+        
+        const onImageLoad = () => {
+            loadedCount++;
+            if (loadedCount === totalImages) {
+                const rightImageHtml = rightImg ? `
+                    <img class="page-image right-page" src="${rightPagePath}" alt="Page ${pageNum + 1}" style="
+                        max-width: 48vw;
+                        max-height: 100vh;
+                        object-fit: ${this.config.imageFit};
+                        margin: 0 1vw;
+                    ">
+                ` : '';
+                
+                targetElement.innerHTML = `
+                    <div style="
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        background: black;
+                        gap: 2vw;
+                    ">
+                        <img class="page-image left-page" src="${leftPagePath}" alt="Page ${pageNum}" style="
+                            max-width: 48vw;
+                            max-height: 100vh;
+                            object-fit: ${this.config.imageFit};
+                            margin: 0 1vw;
+                        ">
+                        ${rightImageHtml}
+                    </div>
+                `;
+            }
+        };
+        
+        leftImg.onload = onImageLoad;
+        leftImg.onerror = onImageLoad;
+        leftImg.src = leftPagePath;
+        
+        if (rightImg) {
+            rightImg.onload = onImageLoad;
+            rightImg.onerror = onImageLoad;
             rightImg.src = rightPagePath;
         }
     }
@@ -494,7 +594,7 @@ class ImageFlipbook {
         const pageContainer = document.querySelector('.page-container');
         if (!pageContainer) return;
         
-        if (!document.fullscreenElement) {
+        if (!document.fullscreenElement && !this._mobileFullscreen) {
             const fullscreenMethod = pageContainer.requestFullscreen || 
                                    pageContainer.webkitRequestFullscreen || 
                                    pageContainer.mozRequestFullScreen || 
@@ -502,16 +602,208 @@ class ImageFlipbook {
                                    
             if (fullscreenMethod) {
                 fullscreenMethod.call(pageContainer);
+            } else {
+                // Mobile fallback - use custom overlay
+                this.enterMobileFullscreen();
             }
         } else {
-            const exitMethod = document.exitFullscreen || 
-                             document.webkitExitFullscreen || 
-                             document.mozCancelFullScreen || 
-                             document.msExitFullscreen;
-                             
-            if (exitMethod) {
-                exitMethod.call(document);
+            if (this._mobileFullscreen) {
+                this.exitMobileFullscreen();
+            } else {
+                const exitMethod = document.exitFullscreen || 
+                                 document.webkitExitFullscreen || 
+                                 document.mozCancelFullScreen || 
+                                 document.msExitFullscreen;
+                                 
+                if (exitMethod) {
+                    exitMethod.call(document);
+                }
             }
+        }
+    }
+
+    enterMobileFullscreen() {
+        if (document.getElementById('mobile-fullscreen-overlay')) return;
+        
+        const overlay = document.createElement('div');
+        overlay.id = 'mobile-fullscreen-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+        
+        // Clone current page content
+        const pageContainer = document.querySelector('.page-container');
+        if (pageContainer) {
+            const clonedContent = pageContainer.cloneNode(true);
+            
+            // Update the fullscreen display
+            setTimeout(() => {
+                if (this.pageMode === '2-pages' && this.config.allowDualPage) {
+                    this.updateFullscreenDualPage(this.currentPage, overlay);
+                } else {
+                    this.updateFullscreenPage(this.currentPage, overlay);
+                }
+            }, 50);
+            
+            overlay.appendChild(clonedContent);
+        }
+        
+        // Add close button
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '✕';
+        closeBtn.style.cssText = `
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 10001;
+            min-width: 44px;
+            min-height: 44px;
+        `;
+        closeBtn.onclick = () => this.exitMobileFullscreen();
+        overlay.appendChild(closeBtn);
+        
+        // Add touch navigation
+        this.addMobileFullscreenTouchControls(overlay);
+        
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        
+        // Mark as mobile fullscreen
+        this._mobileFullscreen = true;
+    }
+
+    exitMobileFullscreen() {
+        const overlay = document.getElementById('mobile-fullscreen-overlay');
+        if (overlay) {
+            overlay.remove();
+            document.body.style.overflow = '';
+            this._mobileFullscreen = false;
+        }
+    }
+
+    addMobileFullscreenTouchControls(overlay) {
+        let startX = 0;
+        let startY = 0;
+        
+        // Add navigation buttons
+        const prevBtn = document.createElement('button');
+        prevBtn.innerHTML = '←';
+        prevBtn.style.cssText = `
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            font-size: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10001;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            min-height: 44px;
+        `;
+        prevBtn.onclick = (e) => {
+            e.stopPropagation();
+            this.prevPage();
+        };
+        
+        const nextBtn = document.createElement('button');
+        nextBtn.innerHTML = '→';
+        nextBtn.style.cssText = `
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            font-size: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10001;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            min-height: 44px;
+        `;
+        nextBtn.onclick = (e) => {
+            e.stopPropagation();
+            this.nextPage();
+        };
+        
+        overlay.appendChild(prevBtn);
+        overlay.appendChild(nextBtn);
+        
+        // Add swipe gesture support
+        overlay.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        overlay.addEventListener('touchend', (e) => {
+            if (!startX || !startY) return;
+            
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+            
+            // Only trigger if horizontal swipe is dominant
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                if (diffX > 0) {
+                    // Swipe left - next page
+                    this.nextPage();
+                } else {
+                    // Swipe right - previous page
+                    this.prevPage();
+                }
+            }
+            
+            startX = 0;
+            startY = 0;
+        }, { passive: true });
+        
+        // Add tap to center for next page
+        const contentArea = overlay.querySelector('.page-container');
+        if (contentArea) {
+            contentArea.addEventListener('click', (e) => {
+                const rect = contentArea.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                
+                // If tap is in center 60% of screen, go to next page
+                if (clickX > width * 0.2 && clickX < width * 0.8) {
+                    this.nextPage();
+                }
+            });
         }
     }
     

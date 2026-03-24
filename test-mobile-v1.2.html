@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageFlipbook v1.2.0 - Mobile Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .version-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .features {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .feature-list li:before {
+            content: "📱 ";
+            margin-right: 10px;
+        }
+        
+        #flipbook-container {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="version-badge">📖 ImageFlipbook v1.2.0</div>
+        <h1>Mobile Enhancements Test</h1>
+        
+        <div class="features">
+            <h3>🔥 New in v1.2.0:</h3>
+            <ul class="feature-list">
+                <li><strong>Mobile Fullscreen Fallback</strong> - Custom overlay when native fullscreen isn't available</li>
+                <li><strong>Touch Navigation Buttons</strong> - Left/right circular buttons in fullscreen</li>
+                <li><strong>Swipe Gesture Support</strong> - Swipe left/right to change pages</li>
+                <li><strong>Tap to Advance</strong> - Tap center area to go to next page</li>
+                <li><strong>iOS Safari Compatible</strong> - Enhanced mobile browser support</li>
+                <li><strong>44px Touch Targets</strong> - Mobile accessibility compliant buttons</li>
+            </ul>
+        </div>
+        
+        <p><strong>Test Instructions:</strong></p>
+        <ol>
+            <li>👆 <strong>Tap any page</strong> or the "⛶ Full" button to enter fullscreen</li>
+            <li>📱 <strong>On mobile:</strong> You'll see a custom fullscreen overlay</li>
+            <li>🎮 <strong>Navigate using:</strong>
+                <ul>
+                    <li>Touch the ← → buttons on screen edges</li>
+                    <li>Swipe left/right anywhere on the page</li>
+                    <li>Tap the center of the page to advance</li>
+                    <li>Use ✕ button to exit fullscreen</li>
+                </ul>
+            </li>
+        </ol>
+
+        <div id="flipbook-container"></div>
+    </div>
+
+    <script src="dist/image-flipbook.min.js"></script>
+    <script>
+        // Test with some sample images
+        const flipbook = new ImageFlipbook({
+            container: '#flipbook-container',
+            pagePattern: 'pages/page-{page}.png',
+            totalPages: 10,
+            startPage: 1,
+            title: 'Mobile Test Book v1.2.0',
+            allowDualPage: true,
+            imageFit: 'contain',
+            theme: 'default',
+            fullscreenEnabled: true
+        });
+        
+        console.log('📱 ImageFlipbook v1.2.0 initialized with mobile enhancements!');
+        console.log('🎯 Features: Mobile fullscreen fallback, touch navigation, swipe gestures');
+    </script>
+</body>
+</html>
