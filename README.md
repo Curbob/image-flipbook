@@ -3,6 +3,8 @@
 [![NPM Version](https://img.shields.io/npm/v/image-flipbook.svg)](https://www.npmjs.com/package/image-flipbook)
 [![License](https://img.shields.io/npm/l/image-flipbook.svg)](https://github.com/curbob/image-flipbook/blob/main/LICENSE)
 [![Size](https://img.shields.io/bundlephobia/minzip/image-flipbook.svg)](https://bundlephobia.com/result?p=image-flipbook)
+[![Downloads](https://img.shields.io/npm/dm/image-flipbook.svg)](https://www.npmjs.com/package/image-flipbook)
+[![GitHub Stars](https://img.shields.io/github/stars/curbob/image-flipbook.svg?style=social)](https://github.com/curbob/image-flipbook)
 
 **Zero-dependency JavaScript library for smooth image sequence viewing with fullscreen navigation.**
 
@@ -38,10 +40,16 @@ Perfect for digital art books, comic readers, technical manuals, portfolios, and
 npm install image-flipbook
 ```
 
-### CDN (Coming Soon)
+### CDN
 
 ```html
 <script src="https://unpkg.com/image-flipbook@latest/dist/image-flipbook.min.js"></script>
+```
+
+Or with version pinning (recommended for production):
+
+```html
+<script src="https://unpkg.com/image-flipbook@1.2.0/dist/image-flipbook.min.js"></script>
 ```
 
 ### Basic Usage
@@ -261,6 +269,26 @@ npm run dev
 # Build distribution files
 npm run build
 ```
+
+## ❓ Troubleshooting
+
+### Fullscreen not working
+- **HTTPS required**: Fullscreen API requires HTTPS in production
+- **Mobile Safari**: Uses custom overlay fallback automatically
+
+### Images not loading
+- **Check file paths**: Ensure image paths are correct relative to your HTML file
+- **CORS issues**: When loading from different domains, ensure proper CORS headers
+- **File formats**: Supported: JPG, PNG, WebP, SVG
+
+### Performance with many images
+- **Image optimization**: Compress images appropriately for web
+- **Progressive loading**: Consider lazy-loading for large collections
+- **Image dimensions**: Consistent sizing improves performance
+
+### Mobile display issues
+- **Viewport meta tag**: Ensure `<meta name="viewport" content="width=device-width, initial-scale=1">` is present
+- **Touch targets**: Library automatically uses 44px minimum touch targets
 
 ## 📄 License
 
